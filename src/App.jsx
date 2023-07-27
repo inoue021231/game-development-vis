@@ -364,7 +364,7 @@ const App = () => {
 
       <div className="footer">
 
-        <a href="https://github.com/inoue021231/game-development-viz" target="_blank">github</a> 2023 inoue_r
+        <a href="https://github.com/inoue021231/game-development-viz">github</a> 2023 inoue_r
       </div>
     </div>
   )
