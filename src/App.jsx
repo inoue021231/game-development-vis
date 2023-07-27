@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Data from './data.json';
 import './App.css';
 import * as d3 from "d3";
@@ -353,7 +353,7 @@ const App = () => {
       </div>
 
       <div className="footer">
-        <a>github</a>
+        <p>github</p>
         <p>2023 inoue_r</p>
       </div>
     </div>
