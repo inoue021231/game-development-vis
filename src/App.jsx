@@ -130,6 +130,7 @@ const Chart = (props) => {
     }
   }
 
+  const [selectArcIndex, setSelectArcIndex] = useState(-1);
   const [selectPathIndex, setSelectPathIndex] = useState(-1);
   const [highlightData, setHighlightData] = useState(null);
 
@@ -159,11 +160,13 @@ const Chart = (props) => {
     const textBBox = textElement.getBBox();
     setMakerNameWidth(textBBox.width + 30);
     textElement.remove();
+    setSelectArcIndex(i);
     setHighlightMakerIndex(i);
   };
 
   const handleMakerMouseLeave = () => {
     setHighlightMakerIndex(-1);
+    setSelectArcIndex(-1);
     setMakerNameWidth(0);
   };
 
@@ -214,6 +217,8 @@ const Chart = (props) => {
       <line x1={xArray[9].x} stroke='gray'></line>
       <line y1={h - margin} stroke='gray'></line>
       <line x1={xArray[9].x} x2={xArray[9].x} y1="0" y2={h - margin} stroke='gray'></line>
+
+      {highlightMakerIndex !== -1 && selectMaker === -1 && <path d={path[highlightMakerIndex]} stroke="skyblue" fill="none" strokeWidth="5"></path>}
 
       {selectMaker === -1 ? path.map((p, i) => {
         return <path d={p} stroke={color(i)} strokeWidth="2" fill='none' key={i} ></path>
@@ -288,6 +293,9 @@ const Chart = (props) => {
           </g>
         })
       })}
+      <g transform={`translate(${xArray[selectYear - firstYear].x},0)`}>
+        <path d={highlightCircle} fill="skyblue"></path>
+      </g>
     </g>
     <g transform={`translate(${w - 200},${h - 60})`}>
       {miniPieData[selectYear - firstYear].map((item, i) => {
@@ -297,13 +305,13 @@ const Chart = (props) => {
         const labelY = labelPosition[1] * 1.5;
 
         const handleArcMouseEnter = () => {
-          setSelectPathIndex(i);
+          setSelectArcIndex(i);
           setHighlightData(item);
           handleMakerMouseEnter(i);
         };
 
         const handleArcMouseLeave = () => {
-          setSelectPathIndex(-1);
+          setSelectArcIndex(-1);
           setHighlightData(null);
           handleMakerMouseLeave();
         };
@@ -317,9 +325,9 @@ const Chart = (props) => {
             onClick={() => handleChangeMaker(i)}
           >
 
-            <path d={arcGenerator(item)} fill={color(i)} strokeWidth="2" />
+            <path d={arcGenerator(item)} fill={color(i)} stroke="lightgray" strokeWidth="2" />
 
-            {selectPathIndex === i && (
+            {selectArcIndex === i && (
               <path d={overlayArcGenerator(item)} fill="skyblue" />
             )}
 
@@ -355,8 +363,8 @@ const App = () => {
       </div>
 
       <div className="footer">
-        <p>github</p>
-        <p>2023 inoue_r</p>
+
+        <a href="https://github.com/inoue021231/game-development-viz" target="_blank">github</a> 2023 inoue_r
       </div>
     </div>
   )
