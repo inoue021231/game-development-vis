@@ -200,7 +200,7 @@ const Chart = (props) => {
         if (i !== 0) {
           return <line x1={xArray[i - 1].x} y1={totalScale(totalSales[i - 1])} x2={xArray[i].x} y2={totalScale(totalSales[i])} stroke='black' strokeDasharray="5 3" key={i}></line>
         } else {
-          return;
+          return <div></div>;
         }
       })}
 
