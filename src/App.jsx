@@ -299,7 +299,7 @@ const Chart = (props) => {
 
       {chart === "Line Chart" && <g>
         <g transform={`translate(${xArray[9].x},${h - margin}) scale(1,-1)`}>
-          <text y="-10" textAnchor='start'>{`(万円)`}</text>
+          <text y="-10" textAnchor='start'>{`(万本)`}</text>
         </g>
         <g transform={`translate(${xArray[9].x + margin / 2},${h / 2}) rotate(270) scale(1,-1)`}>
           <text>年別総販売本数</text>
@@ -313,7 +313,7 @@ const Chart = (props) => {
         </g>
 
         <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
-          <text y="-10" textAnchor='end'>{`(万円)`}</text>
+          <text y="-10" textAnchor='end'>{`(万本)`}</text>
         </g>
 
         <g transform={`translate(${xArray[9].x + 80},${h - margin + 10}) scale(1,-1)`}>
