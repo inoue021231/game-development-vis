@@ -4,6 +4,7 @@ import './App.css';
 import * as d3 from "d3";
 
 const Chart = (props) => {
+  const chart = props.chart;
   const firstYear = 2013;
   const yearCount = Object.keys(Data).length;
   const makerCount = 10;
@@ -20,6 +21,7 @@ const Chart = (props) => {
     x: 0,
   }];
 
+  console.log(chart);
 
 
   const pie = d3.pie().value((d) => d["総販売本数"]);
@@ -102,6 +104,61 @@ const Chart = (props) => {
     );
   }
 
+  /* 面グラフ関連 */
+  const areaPoint = [];
+  for (let i = 0; i < yearCount; i++) {
+    const point = [];
+    for (let j = 0; j < makerCount; j++) {
+      const d = Data[firstYear + i].find(item => item["メーカー"] === topRankList[j]);
+      if (j === 0) {
+        point.push(parseFloat(d["販売シェア"]));
+      } else {
+        if (d) {
+          point.push(parseFloat(d["販売シェア"]) + point[j - 1]);
+
+        } else {
+          point.push(point[j - 1]);
+        }
+      }
+
+    }
+    const maxPoint = Math.max(...point);
+    const areaScale = d3.scaleLinear()
+      .domain([0, maxPoint])
+      .range([0, h - margin]);
+
+    const newPoint = point.map((value) => areaScale(value));
+    areaPoint.push(newPoint);
+  }
+
+
+
+  const areaPath = [];
+  const fp = d3.path();
+  fp.moveTo(0, 0);
+  fp.lineTo(xArray[9].x, 0);
+  fp.lineTo(xArray[9].x, areaPoint[9][0]);
+  for (let i = yearCount - 2; i >= 0; i--) {
+    fp.lineTo(xArray[i].x, areaPoint[i][0]);
+  }
+  areaPath.push(fp);
+
+  for (let i = 1; i < makerCount; i++) {
+    const path = d3.path();
+    path.moveTo(0, areaPoint[0][i]);
+    path.lineTo(0, areaPoint[0][i - 1]);
+    for (let j = 1; j < yearCount; j++) {
+      path.lineTo(xArray[j].x, areaPoint[j][i - 1]);
+    }
+    path.lineTo(xArray[9].x, areaPoint[9][i]);
+    for (let j = yearCount - 2; j >= 0; j--) {
+      path.lineTo(xArray[j].x, areaPoint[j][i]);
+    }
+    areaPath.push(path);
+  }
+
+  console.log(areaPath);
+  /*  */
 
   const handleChangeYear = (i) => {
     setSelectYear(i + firstYear);
@@ -170,6 +227,12 @@ const Chart = (props) => {
     setMakerNameWidth(0);
   };
 
+  const getTransparentColor = (i) => {
+    const c = d3.color(color(i));
+    c.opacity = 0.5;
+    return c.toString();
+  };
+
   const overlayArcGenerator = d3.arc().innerRadius(0).outerRadius(120);
 
   return <svg viewBox={`0 0 ${w + 100} ${h + 100}`} className="svg__content">
@@ -184,74 +247,80 @@ const Chart = (props) => {
           </g>
         })
       }
-      {selectMaker === -1 ?
-        yScale.ticks().map((item, i) => {
-          return <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
-            <line x1="-5" stroke='gray'></line>
-            <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
-            <line x1={xArray[9].x} stroke="lightgray"></line>
-          </g>
-        }) : yScaleArray[selectMaker].ticks(10).map((item, i) => {
-          return <g transform={`translate(0,${yScaleArray[selectMaker](item)}) scale(1,-1)`} key={i}>
-            <line x1="-5" stroke='gray'></line>
-            <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
-            <line x1={xArray[9].x} stroke="lightgray"></line>
-          </g>
-        })
-      }
-      {totalSales.map((_, i) => {
+
+      {chart === "Line Chart" && selectMaker === -1 && yScale.ticks().map((item, i) => {
+        return <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
+          <line x1="-5" stroke='gray'></line>
+          <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
+          <line x1={xArray[9].x} stroke="lightgray"></line>
+        </g>
+      })}
+
+      {chart === "Line Chart" && selectMaker !== -1 && yScaleArray[selectMaker].ticks(10).map((item, i) => {
+        return <g transform={`translate(0,${yScaleArray[selectMaker](item)}) scale(1,-1)`} key={i}>
+          <line x1="-5" stroke='gray'></line>
+          <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
+          <line x1={xArray[9].x} stroke="lightgray"></line>
+        </g>
+      })}
+
+
+      {chart === "Line Chart" && totalSales.map((_, i) => {
         if (i !== 0) {
           return <line x1={xArray[i - 1].x} y1={totalScale(totalSales[i - 1])} x2={xArray[i].x} y2={totalScale(totalSales[i])} stroke='black' strokeDasharray="5 3" key={i}></line>
         } else {
-          return <div></div>;
+          return <div key={i}></div>;
         }
       })}
 
-      {totalScale.ticks().map((item, i) => {
+      {chart === "Line Chart" && totalScale.ticks().map((item, i) => {
         return <g transform={`translate(${xArray[9].x},${totalScale(item)}) scale(1,-1)`} key={i}>
           <text x="5" textAnchor='start' dominantBaseline="central">{item / 10000}</text>
         </g>
-      })
-      }
+      })}
 
       <line x1={xArray[9].x} stroke='gray'></line>
       <line y1={h - margin} stroke='gray'></line>
       <line x1={xArray[9].x} x2={xArray[9].x} y1="0" y2={h - margin} stroke='gray'></line>
 
-      {highlightMakerIndex !== -1 && selectMaker === -1 && <path d={path[highlightMakerIndex]} stroke="skyblue" fill="none" strokeWidth="5"></path>}
+      {chart === "Line Chart" && highlightMakerIndex !== -1 && selectMaker === -1 && <path d={path[highlightMakerIndex]} stroke="skyblue" fill="none" strokeWidth="5"></path>}
 
-      {selectMaker === -1 ? path.map((p, i) => {
-        return <path d={p} stroke={color(i)} strokeWidth="2" fill='none' key={i} ></path>
-      }) : <path
-        d={selectPath}
-        stroke={color(selectMaker)}
-        strokeWidth="2"
-        fill='none'
-      ></path>
-      }
+      {chart === "Line Chart" && <g>
+        {selectMaker === -1 ? path.map((p, i) => {
+          return <path d={p} stroke={color(i)} strokeWidth="2" fill='none' key={i} ></path>
+        }) : <path
+          d={selectPath}
+          stroke={color(selectMaker)}
+          strokeWidth="2"
+          fill='none'
+        ></path>
+        }
+      </g>}
 
-      <g transform={`translate(${xArray[9].x},${h - margin}) scale(1,-1)`}>
-        <text y="-10" textAnchor='start'>{`(万円)`}</text>
-      </g>
-      <g transform={`translate(${xArray[9].x + margin / 2},${h / 2}) rotate(270) scale(1,-1)`}>
-        <text>年別総販売本数</text>
-      </g>
+      {chart === "Line Chart" && <g>
+        <g transform={`translate(${xArray[9].x},${h - margin}) scale(1,-1)`}>
+          <text y="-10" textAnchor='start'>{`(万円)`}</text>
+        </g>
+        <g transform={`translate(${xArray[9].x + margin / 2},${h / 2}) rotate(270) scale(1,-1)`}>
+          <text>年別総販売本数</text>
+        </g>
 
-      <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
-        <text>年</text>
-      </g>
-      <g transform={`translate(${-margin / 2},${h / 4}) rotate(90) scale(1,-1)`}>
-        <text>メーカー別販売本数</text>
-      </g>
+        <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
+          <text>年</text>
+        </g>
+        <g transform={`translate(${-margin / 2},${h / 4}) rotate(90) scale(1,-1)`}>
+          <text>メーカー別販売本数</text>
+        </g>
 
-      <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
-        <text y="-10" textAnchor='end'>{`(万円)`}</text>
-      </g>
+        <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
+          <text y="-10" textAnchor='end'>{`(万円)`}</text>
+        </g>
 
-      <g transform={`translate(${xArray[9].x + 80},${h - margin + 10}) scale(1,-1)`}>
-        <line x1="10" strokeDasharray="5 2" stroke="black"></line>
-        <text x="20" dominantBaseline="central">年別総販売本数</text>
-      </g>
+        <g transform={`translate(${xArray[9].x + 80},${h - margin + 10}) scale(1,-1)`}>
+          <line x1="10" strokeDasharray="5 2" stroke="black"></line>
+          <text x="20" dominantBaseline="central">年別総販売本数</text>
+        </g>
+      </g>}
 
       {
         topRankList.map((item, i) => {
@@ -274,6 +343,11 @@ const Chart = (props) => {
           </g>
         })
       }
+
+      {chart === "Area Chart" && areaPath.map((item, i) => {
+        return <g transform={`translate(0,${h - margin}) scale(1,-1)`}><path d={item} fill={getTransparentColor(i)} key={i}></path></g>
+      })}
+
 
     </g>
     <g transform={`translate(${margin - 30},${h + 30})`}>
@@ -348,18 +422,26 @@ const Chart = (props) => {
         {selectYear}年
       </text>
     </g>
-  </svg>
+  </svg >
 }
 
 const App = () => {
+  const [chart, setChart] = useState("Line Chart");
+  const handleChangeChart = (event) => {
+    setChart(event.target.value);
+  }
   return (
     <div className="app-container">
       <div className="header">
         <h1>Game Development Visualization</h1>
+        <select className="form-select" onChange={handleChangeChart}>
+          <option>Line Chart</option>
+          <option>Area Chart</option>
+        </select>
       </div>
 
       <div className="svg__container">
-        <Chart />
+        <Chart chart={chart} />
       </div>
 
       <div className="footer">
