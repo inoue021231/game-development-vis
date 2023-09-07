@@ -9,11 +9,11 @@ import Circle from "./Circle";
 const Chart = (props) => {
   const [data] = useState(props.data);
   const [selectMaker, setSelectMaker] = useState(-1);
-  const [selectLine, setSelectLine] = useState(null);
   const [selectMiniArcIndex, setSelectMiniArcIndex] = useState(-1);
   const [selectPathIndex, setSelectPathIndex] = useState(-1);
-  const [highlightData, setHighlightData] = useState(null);
   const [highlightMakerIndex, setHighlightMakerIndex] = useState(-1);
+  const [highlightData, setHighlightData] = useState(null);
+  const [selectLine, setSelectLine] = useState(null);
 
   const years = Object.keys(data).sort();
   const firstYear = Number(years[0]);
@@ -33,19 +33,22 @@ const Chart = (props) => {
   const legendW = w / 3;
 
   const salesFigures = [];
-  const totalSales = [];
   const color = d3
     .scaleOrdinal(d3.schemeCategory10)
     .domain(d3.range(makerCount));
 
   for (let i = 0; i < yearCount; i++) {
-    let total = 0;
     for (let j = 0; j < data[firstYear + i].length; j++) {
       salesFigures.push(Number(data[firstYear + i][j][salesCountStr]));
-      total += Number(data[firstYear + i][j][salesCountStr]);
     }
-    totalSales.push(total);
   }
+
+  const highlightCircle = d3
+    .arc()
+    .innerRadius(35)
+    .outerRadius(38)
+    .startAngle(0)
+    .endAngle(2 * Math.PI)();
 
   const xScale = d3
     .scaleLinear()
@@ -141,13 +144,6 @@ const Chart = (props) => {
     }
   };
 
-  const highlightCircle = d3
-    .arc()
-    .innerRadius(35)
-    .outerRadius(38)
-    .startAngle(0)
-    .endAngle(2 * Math.PI)();
-
   const handlePathMouseEnter = (i) => {
     setSelectPathIndex(i);
     setHighlightData(highlightCircle);
@@ -227,13 +223,13 @@ const Chart = (props) => {
           margin,
           selectYear,
           lineW,
-          setSelectMiniArcIndex,
           setHighlightData,
           handleMakerMouseEnter,
           handleMakerMouseLeave,
           handleChangeMaker,
           color,
           selectMiniArcIndex,
+          setSelectMiniArcIndex,
           firstYear,
           xScale,
           setSelectYear,

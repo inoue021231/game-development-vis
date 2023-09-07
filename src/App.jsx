@@ -18,8 +18,6 @@ const App = () => {
       <div className="svg__container">
         <Chart data={Data} />
       </div>
-
-      <div className="footer"></div>
     </div>
   );
 };

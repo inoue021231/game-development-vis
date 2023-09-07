@@ -7,13 +7,13 @@ const Circle = ({
   margin,
   selectYear,
   lineW,
-  setSelectMiniArcIndex,
   setHighlightData,
   handleMakerMouseEnter,
   handleMakerMouseLeave,
   handleChangeMaker,
   color,
   selectMiniArcIndex,
+  setSelectMiniArcIndex,
   firstYear,
   xScale,
   setSelectYear,
@@ -40,6 +40,8 @@ const Circle = ({
       const d = data[firstYear + i].find(
         (item) => item[makerStr] === Object.keys(topRankList[j])[0]
       );
+
+      console.log(Object.keys(topRankList[j])[0]);
       if (d) {
         pieArray.push(d);
       }
@@ -127,7 +129,7 @@ const Circle = ({
             </g>
           );
         })}
-        <text y="145" textAnchor="middle" fontSize="15px">
+        <text y={h / 3} textAnchor="middle" fontSize="15px">
           {selectYear}年
         </text>
       </g>
