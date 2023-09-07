@@ -1,6 +1,3 @@
-/* import Data from "./data.json"; */
-import { useState, useEffect } from "react";
-import * as d3 from "d3";
 import "./App.css";
 
 const LineAllPlot = ({
@@ -16,14 +13,9 @@ const LineAllPlot = ({
       {topRankList.map((item, i) => {
         const linePath = line[i](Object.values(item).flat());
         return (
-          <g key={i}>
+          <g fill="none" key={i}>
             {highlightMakerIndex === i && (
-              <path
-                d={linePath}
-                stroke="skyblue"
-                fill="none"
-                strokeWidth="8"
-              ></path>
+              <path d={linePath} stroke="skyblue" strokeWidth="8"></path>
             )}
             <path
               d={linePath}
@@ -33,14 +25,11 @@ const LineAllPlot = ({
                   : "gray"
               }
               strokeWidth="2"
-              fill="none"
             ></path>
-
             <path
               d={linePath}
               stroke="transparent"
               strokeWidth="20"
-              fill="none"
               onMouseEnter={() => handleMakerMouseEnter(i)}
               onMouseLeave={handleMakerMouseLeave}
             ></path>
@@ -58,7 +47,7 @@ const LinePlot = ({ selectPath, selectMaker, color }) => {
         d={selectPath}
         stroke={color(selectMaker)}
         strokeWidth="2"
-        style={{ transition: "0.5s" }}
+        style={{ transition: "1s" }}
         fill="none"
       ></path>
     </g>
@@ -74,28 +63,74 @@ const LineChart = ({
   color,
   handleMakerMouseEnter,
   handleMakerMouseLeave,
+  xScale,
+  yScale,
+  yearCount,
+  yScaleArray,
+  h,
+  margin,
 }) => {
   return (
     <g>
+      <line x1={xScale(yearCount - 1)} stroke="gray"></line>
+      <line y1={h - margin} stroke="gray"></line>
+      <line
+        x1={xScale(yearCount - 1)}
+        x2={xScale(yearCount - 1)}
+        y1="0"
+        y2={h - margin}
+        stroke="gray"
+      ></line>
       {selectMaker === -1 ? (
-        <LineAllPlot
-          {...{
-            topRankList,
-            line,
-            highlightMakerIndex,
-            color,
-            handleMakerMouseEnter,
-            handleMakerMouseLeave,
-          }}
-        ></LineAllPlot>
+        <g>
+          {yScale.ticks().map((item, i) => {
+            return (
+              <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
+                <line x1="-5" stroke="gray"></line>
+                <text x="-5" textAnchor="end" dominantBaseline="central">
+                  {item / 10000}
+                </text>
+                <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
+              </g>
+            );
+          })}
+          <LineAllPlot
+            {...{
+              topRankList,
+              line,
+              highlightMakerIndex,
+              color,
+              handleMakerMouseEnter,
+              handleMakerMouseLeave,
+            }}
+          ></LineAllPlot>
+        </g>
       ) : (
-        <LinePlot
-          {...{
-            selectPath,
-            selectMaker,
-            color,
-          }}
-        ></LinePlot>
+        <g>
+          {yScaleArray[selectMaker].ticks(10).map((item, i) => {
+            return (
+              <g
+                transform={`translate(0,${yScaleArray[selectMaker](
+                  item
+                )}) scale(1,-1)`}
+                key={i}
+              >
+                <line x1="-5" stroke="gray"></line>
+                <text x="-5" textAnchor="end" dominantBaseline="central">
+                  {item / 10000}
+                </text>
+                <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
+              </g>
+            );
+          })}
+          <LinePlot
+            {...{
+              selectPath,
+              selectMaker,
+              color,
+            }}
+          ></LinePlot>
+        </g>
       )}
     </g>
   );

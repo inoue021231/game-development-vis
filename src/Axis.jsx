@@ -1,10 +1,8 @@
-/* import Data from "./data.json"; */
-import { useState, useEffect } from "react";
-import * as d3 from "d3";
 import "./App.css";
 
 const Axis = ({
   margin,
+  w,
   h,
   miniPieData,
   xScale,
@@ -18,11 +16,21 @@ const Axis = ({
   selectYear,
   firstYear,
   highlightCircle,
-  legendW,
 }) => {
   const padding = 5;
   return (
     <g>
+      <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
+        <text>年</text>
+      </g>
+      <g
+        transform={`translate(${-margin / 2},${h / 4}) rotate(90) scale(1,-1)`}
+      >
+        <text>メーカー別販売本数</text>
+      </g>
+      <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
+        <text y="-10" textAnchor="end">{`(万本)`}</text>
+      </g>
       {xScale.ticks().map((item, i) => {
         return (
           <g transform={`translate(${xScale(item)},0) scale(1,-1)`} key={i}>
