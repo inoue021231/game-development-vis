@@ -1,5 +1,5 @@
 /* import Data from "./data.json"; */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import * as d3 from "d3";
 import "./App.css";
 import Axis from "./Axis";
@@ -12,7 +12,7 @@ const MakerStr = "メーカー";
 const SalesCountStr = "総販売本数";
 
 const Chart = (props) => {
-  const [data, setData] = useState(props.data);
+  const [data] = useState(props.data);
   const [selectYear, setSelectYear] = useState(firstYear);
   const [selectMaker, setSelectMaker] = useState(-1);
   const [selectPath, setSelectPath] = useState(null);
