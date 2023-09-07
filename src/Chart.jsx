@@ -6,6 +6,68 @@ import Total from "./Total";
 
 const firstYear = 2013;
 
+const LineAllPlot = (props) => {
+  const {
+    topRankList,
+    line,
+    highlightMakerIndex,
+    color,
+    handleMakerMouseEnter,
+    handleMakerMouseLeave,
+  } = props;
+  return (
+    <g>
+      {topRankList.map((item, i) => {
+        const linePath = line[i](Object.values(item).flat());
+        return (
+          <g key={i}>
+            <path
+              d={linePath}
+              stroke={
+                highlightMakerIndex === i || highlightMakerIndex === -1
+                  ? color(i)
+                  : "gray"
+              }
+              strokeWidth="2"
+              fill="none"
+            ></path>
+            {highlightMakerIndex === i && (
+              <path
+                d={linePath}
+                stroke="skyblue"
+                fill="none"
+                strokeWidth="5"
+              ></path>
+            )}
+            <path
+              d={linePath}
+              stroke="transparent"
+              strokeWidth="20"
+              fill="none"
+              onMouseEnter={() => handleMakerMouseEnter(i)}
+              onMouseLeave={handleMakerMouseLeave}
+            ></path>
+          </g>
+        );
+      })}
+    </g>
+  );
+};
+
+const LinePlot = ({ selectPath, selectMaker, color }) => {
+  return (
+    <g>
+      <path
+        d={selectPath}
+        stroke={color(selectMaker)}
+        strokeWidth="2"
+        style={{ transition: "0.5s" }}
+        fill="none"
+      ></path>
+    </g>
+  );
+};
+
 const Line = (props) => {
   const {
     totalScale,
@@ -40,9 +102,7 @@ const Line = (props) => {
         y2={h - margin}
         stroke="gray"
       ></line>
-
       {xScale.ticks().map((item, i) => {
-        console.log(item);
         return (
           <g transform={`translate(${xScale(item)},0) scale(1,-1)`} key={i}>
             <line y1="5" stroke="gray"></line>
@@ -53,7 +113,6 @@ const Line = (props) => {
           </g>
         );
       })}
-
       {selectMaker === -1 &&
         yScale.ticks().map((item, i) => {
           return (
@@ -66,7 +125,6 @@ const Line = (props) => {
             </g>
           );
         })}
-
       {selectMaker !== -1 &&
         yScaleArray[selectMaker].ticks(10).map((item, i) => {
           return (
@@ -85,74 +143,25 @@ const Line = (props) => {
           );
         })}
 
-      {highlightMakerIndex !== -1 && selectMaker === -1 && (
-        <path
-          d={line[highlightMakerIndex](
-            Object.values(topRankList[highlightMakerIndex])
-          )}
-          stroke="skyblue"
-          fill="none"
-          strokeWidth="5"
-        ></path>
-      )}
-      {selectMaker === -1 /*
-        path.map((p, i) => {
-          return (
-            <g key={i}>
-              <path
-                d={p}
-                stroke={
-                  highlightMakerIndex === i || highlightMakerIndex === -1
-                    ? color(i)
-                    : "gray"
-                }
-                strokeWidth="2"
-                fill="none"
-              ></path>
-              <path
-                d={p}
-                stroke="transparent"
-                strokeWidth="20"
-                fill="none"
-                onMouseEnter={() => handleMakerMouseEnter(i)}
-                onMouseLeave={handleMakerMouseLeave}
-              ></path>
-            </g>
-          );
-        }) */ ? (
-        topRankList.map((item, i) => {
-          console.log(Object.values(item).flat());
-          return (
-            <g key={i}>
-              <path
-                d={line[i](Object.values(item).flat())}
-                stroke={
-                  highlightMakerIndex === i || highlightMakerIndex === -1
-                    ? color(i)
-                    : "gray"
-                }
-                strokeWidth="2"
-                fill="none"
-              ></path>
-              <path
-                d={line[i](Object.values(item))}
-                stroke="transparent"
-                strokeWidth="20"
-                fill="none"
-                onMouseEnter={() => handleMakerMouseEnter(i)}
-                onMouseLeave={handleMakerMouseLeave}
-              ></path>
-            </g>
-          );
-        })
+      {selectMaker === -1 ? (
+        <LineAllPlot
+          {...{
+            topRankList,
+            line,
+            highlightMakerIndex,
+            color,
+            handleMakerMouseEnter,
+            handleMakerMouseLeave,
+          }}
+        ></LineAllPlot>
       ) : (
-        <path
-          d={selectPath}
-          stroke={color(selectMaker)}
-          strokeWidth="2"
-          style={{ transition: "0.5s" }}
-          fill="none"
-        ></path>
+        <LinePlot
+          {...{
+            selectPath,
+            selectMaker,
+            color,
+          }}
+        ></LinePlot>
       )}
 
       {/* <Total
@@ -161,7 +170,6 @@ const Line = (props) => {
             totalSales={totalSales}
             totalScale={totalScale}
         ></Total> */}
-
       <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
         <text>年</text>
       </g>
@@ -170,7 +178,6 @@ const Line = (props) => {
       >
         <text>メーカー別販売本数</text>
       </g>
-
       <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
         <text y="-10" textAnchor="end">{`(万本)`}</text>
       </g>
@@ -441,7 +448,7 @@ const Chart = (props) => {
                 />
               )}
               <rect width="10" height="10" fill={color(i)}></rect>
-              <text x="20" y="10" style={{ backgroundColor: "green" }}>
+              <text x="20" y="10">
                 {Object.keys(item)}
               </text>
             </g>
