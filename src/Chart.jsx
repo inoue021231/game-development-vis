@@ -403,7 +403,6 @@ const Chart = (props) => {
           h={h}
           highlightMakerIndex={highlightMakerIndex}
           selectMaker={selectMaker}
-          //path={path}
           color={color}
           selectPath={selectPath}
           margin={margin}
@@ -442,7 +441,7 @@ const Chart = (props) => {
                 />
               )}
               <rect width="10" height="10" fill={color(i)}></rect>
-              <text x="20" y="10">
+              <text x="20" y="10" style={{ backgroundColor: "green" }}>
                 {Object.keys(item)}
               </text>
             </g>
