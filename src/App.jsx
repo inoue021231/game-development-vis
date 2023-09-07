@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import "./App.css";
 import Chart from "./Chart";
 import Data from "./data.json";
