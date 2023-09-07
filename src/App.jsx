@@ -10,6 +10,8 @@ const App = () => {
         <h1>Game Development Visualization</h1>
       </div>
 
+
+
       <div className="svg__container">
         <Chart />
       </div>

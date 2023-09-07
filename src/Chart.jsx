@@ -2,6 +2,7 @@ import Data from './data.json';
 import { useState, useEffect } from 'react';
 import * as d3 from "d3";
 import './App.css';
+import Total from './Total';
 
 const firstYear = 2013;
 
@@ -22,13 +23,7 @@ const Line = (props) => {
             })
         }
 
-        {totalSales.map((_, i) => {
-            if (i !== 0) {
-                return <line x1={xArray[i - 1].x} y1={totalScale(totalSales[i - 1])} x2={xArray[i].x} y2={totalScale(totalSales[i])} stroke='black' strokeDasharray="5 3" key={i}></line>
-            } else {
-                return <div key={i}></div>;
-            }
-        })}
+        
 
         {selectMaker === -1 && yScale.ticks().map((item, i) => {
             return <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
@@ -46,12 +41,6 @@ const Line = (props) => {
             </g>
         })}
 
-        {totalScale.ticks().map((item, i) => {
-            return <g transform={`translate(${xArray[9].x},${totalScale(item)}) scale(1,-1)`} key={i}>
-                <text x="5" textAnchor='start' dominantBaseline="central">{item / 10000}</text>
-            </g>
-        })}
-
         {highlightMakerIndex !== -1 && selectMaker === -1 &&
             <path d={path[highlightMakerIndex]} stroke="skyblue" fill="none" strokeWidth="5"></path>
         }
@@ -66,12 +55,15 @@ const Line = (props) => {
         ></path>
         }
 
-        <g transform={`translate(${xArray[9].x},${h - margin}) scale(1,-1)`}>
-            <text y="-10" textAnchor='start'>{`(万本)`}</text>
-        </g>
-        <g transform={`translate(${xArray[9].x + margin / 2},${h / 2}) rotate(270) scale(1,-1)`}>
-            <text>年別総販売本数</text>
-        </g>
+        {/* <Total
+            xArray={xArray}
+            margin={margin}
+            h={h}
+            totalSales={totalSales}
+            totalScale={totalScale}
+        ></Total> */}
+
+        
 
         <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
             <text>年</text>
@@ -84,10 +76,7 @@ const Line = (props) => {
             <text y="-10" textAnchor='end'>{`(万本)`}</text>
         </g>
 
-        <g transform={`translate(${xArray[9].x + 80},${h - margin + 10}) scale(1,-1)`}>
-            <line x1="10" strokeDasharray="5 2" stroke="black"></line>
-            <text x="20" dominantBaseline="central">年別総販売本数</text>
-        </g>
+        
     </g>
 }
 
