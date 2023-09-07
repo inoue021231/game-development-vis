@@ -3,14 +3,12 @@ import './App.css';
 import Chart from './Chart';
 
 const App = () => {
-
+  
   return (
     <div className="app-container">
       <div className="header">
         <h1>Game Development Visualization</h1>
       </div>
-
-
 
       <div className="svg__container">
         <Chart />
