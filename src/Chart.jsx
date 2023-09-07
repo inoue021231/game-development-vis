@@ -11,10 +11,9 @@ const Line = (props) => {
     totalScale,
     w,
     h,
-    xArray,
     highlightMakerIndex,
     selectMaker,
-    path,
+    //path,
     color,
     selectPath,
     margin,
@@ -24,26 +23,31 @@ const Line = (props) => {
     handleMakerMouseEnter,
     handleMakerMouseLeave,
     handleChangeMaker,
+    topRankList,
+    line,
+    xScale,
+    yearCount,
   } = props;
 
   return (
     <g>
-      <line x1={xArray[9].x} stroke="gray"></line>
+      <line x1={xScale(yearCount - 1)} stroke="gray"></line>
       <line y1={h - margin} stroke="gray"></line>
       <line
-        x1={xArray[9].x}
-        x2={xArray[9].x}
+        x1={xScale(yearCount - 1)}
+        x2={xScale(yearCount - 1)}
         y1="0"
         y2={h - margin}
         stroke="gray"
       ></line>
 
-      {xArray.map((item, i) => {
+      {xScale.ticks().map((item, i) => {
+        console.log(item);
         return (
-          <g transform={`translate(${item.x},0) scale(1,-1)`} key={i}>
+          <g transform={`translate(${xScale(item)},0) scale(1,-1)`} key={i}>
             <line y1="5" stroke="gray"></line>
             <text y="5" textAnchor="middle" dominantBaseline="text-before-edge">
-              {item.year}
+              {item + firstYear}
             </text>
             <line y1={-h + margin} stroke="lightgray"></line>
           </g>
@@ -58,7 +62,7 @@ const Line = (props) => {
               <text x="-5" textAnchor="end" dominantBaseline="central">
                 {item / 10000}
               </text>
-              <line x1={xArray[9].x} stroke="lightgray"></line>
+              <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
             </g>
           );
         })}
@@ -76,20 +80,22 @@ const Line = (props) => {
               <text x="-5" textAnchor="end" dominantBaseline="central">
                 {item / 10000}
               </text>
-              <line x1={xArray[9].x} stroke="lightgray"></line>
+              <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
             </g>
           );
         })}
 
       {highlightMakerIndex !== -1 && selectMaker === -1 && (
         <path
-          d={path[highlightMakerIndex]}
+          d={line[highlightMakerIndex](
+            Object.values(topRankList[highlightMakerIndex])
+          )}
           stroke="skyblue"
           fill="none"
           strokeWidth="5"
         ></path>
       )}
-      {selectMaker === -1 ? (
+      {selectMaker === -1 /*
         path.map((p, i) => {
           return (
             <g key={i}>
@@ -113,19 +119,43 @@ const Line = (props) => {
               ></path>
             </g>
           );
+        }) */ ? (
+        topRankList.map((item, i) => {
+          console.log(Object.values(item).flat());
+          return (
+            <g key={i}>
+              <path
+                d={line[i](Object.values(item).flat())}
+                stroke={
+                  highlightMakerIndex === i || highlightMakerIndex === -1
+                    ? color(i)
+                    : "gray"
+                }
+                strokeWidth="2"
+                fill="none"
+              ></path>
+              <path
+                d={line[i](Object.values(item))}
+                stroke="transparent"
+                strokeWidth="20"
+                fill="none"
+                onMouseEnter={() => handleMakerMouseEnter(i)}
+                onMouseLeave={handleMakerMouseLeave}
+              ></path>
+            </g>
+          );
         })
       ) : (
         <path
           d={selectPath}
           stroke={color(selectMaker)}
           strokeWidth="2"
-          style={{ transition: "1s" }}
+          style={{ transition: "0.5s" }}
           fill="none"
         ></path>
       )}
 
       {/* <Total
-            xArray={xArray}
             margin={margin}
             h={h}
             totalSales={totalSales}
@@ -165,21 +195,14 @@ const Chart = (props) => {
     h = 450,
     margin = 100;
 
-  const lineW = 700;
-  const legendW = 400;
+  const lineW = (w * 2) / 3;
+  const legendW = (w * 1) / 3;
 
   const salesFigures = [];
   const totalSales = [];
   const color = d3
     .scaleOrdinal(d3.schemeCategory10)
     .domain(d3.range(makerCount));
-
-  const xArray = [
-    {
-      year: firstYear,
-      x: 0,
-    },
-  ];
 
   for (let i = 0; i < yearCount; i++) {
     let total = 0;
@@ -198,7 +221,7 @@ const Chart = (props) => {
 
   const xScale = d3
     .scaleLinear()
-    .domain([0, makerCount])
+    .domain([0, yearCount - 1])
     .range([0, lineW])
     .nice();
 
@@ -217,7 +240,6 @@ const Chart = (props) => {
   const topRankList = [];
   for (let i = 0; i < makerCount; i++) {
     const name = data[firstYear + yearCount - 1][i]["メーカー"];
-    console.log(name);
     topRankList.push({
       [name]: [],
     });
@@ -226,7 +248,9 @@ const Chart = (props) => {
       const year = firstYear + j;
       const d = data[year].find((item) => item["メーカー"] === name);
       if (d) {
-        topRankList[i][name].push(d["総販売本数"]);
+        topRankList[i][name].push(Number(d["総販売本数"]));
+      } else {
+        topRankList[i][name].push(0);
       }
     }
 
@@ -234,22 +258,23 @@ const Chart = (props) => {
     path[i].moveTo(0, yScale()); */
   }
 
-  topRankList.map((item) => {
-    console.log(item);
-  });
-
   const path = new Array(makerCount);
+  const line = new Array(makerCount);
   for (let i = 0; i < makerCount; i++) {
-    path[i] = d3
+    line[i] = d3
       .line()
       .x((_, i) => xScale(i))
-      .y((d) => yScale(d[makerCount + i]));
+      .y((d) => yScale(d));
   }
+
+  /* topRankList.map((item, i) => {
+    console.log(line(Object.values(item)));
+  }); */
 
   /* circle */
   for (let i = 0; i < makerCount; i++) {
     const d = data[firstYear].find(
-      (item) => item["メーカー"] === topRankList[i]
+      (item) => item["メーカー"] === Object.keys(topRankList[i])[0]
     );
     let y = 0;
     if (d) {
@@ -260,21 +285,16 @@ const Chart = (props) => {
   miniPieData.push(pie(pieArray));
 
   for (let i = 1; i < yearCount; i++) {
-    xArray.push({
-      year: firstYear + i,
-      x: ((w - margin * 4) * i) / yearCount,
-    });
     const pieArray = [];
     for (let j = 0; j < makerCount; j++) {
       let y = 0;
       const d = data[firstYear + i].find(
-        (item) => item["メーカー"] === topRankList[j]
+        (item) => item["メーカー"] === Object.keys(topRankList[j])[0]
       );
       if (d) {
         y = d["総販売本数"];
         pieArray.push(d);
       }
-      path[j].lineTo(xArray[i].x, yScale(y));
     }
     miniPieData.push(pie(pieArray));
   }
@@ -285,7 +305,7 @@ const Chart = (props) => {
     const array = [];
     for (let j = 0; j < yearCount; j++) {
       const d = data[firstYear + j].find(
-        (item) => item["メーカー"] === topRankList[i]
+        (item) => item["メーカー"] === Object.keys(topRankList[i])[0]
       );
       if (d) {
         array.push(d["総販売本数"]);
@@ -313,7 +333,7 @@ const Chart = (props) => {
       for (let j = 0; j < yearCount; j++) {
         let y = 0;
         const d = data[firstYear + j].find(
-          (item) => item["メーカー"] === topRankList[i]
+          (item) => item["メーカー"] === Object.keys(topRankList[i])[0]
         );
         if (d) {
           y = d["総販売本数"];
@@ -321,7 +341,7 @@ const Chart = (props) => {
         if (j === 0) {
           newPath.moveTo(0, yScaleArray[i](y));
         } else {
-          newPath.lineTo(xArray[j].x, yScaleArray[i](y));
+          newPath.lineTo(xScale(j), yScaleArray[i](y));
         }
       }
       setSelectPath(newPath);
@@ -381,10 +401,9 @@ const Chart = (props) => {
           totalScale={totalScale}
           w={w}
           h={h}
-          xArray={xArray}
           highlightMakerIndex={highlightMakerIndex}
           selectMaker={selectMaker}
-          path={path}
+          //path={path}
           color={color}
           selectPath={selectPath}
           margin={margin}
@@ -394,12 +413,16 @@ const Chart = (props) => {
           handleMakerMouseEnter={handleMakerMouseEnter}
           handleMakerMouseLeave={handleMakerMouseLeave}
           handleChangeMaker={handleChangeMaker}
+          topRankList={topRankList}
+          line={line}
+          xScale={xScale}
+          yearCount={yearCount}
         ></Line>
 
         {topRankList.map((item, i) => {
           return (
             <g
-              transform={`translate(${xArray[9].x + 80},${
+              transform={`translate(${xScale(yearCount - 1) + 80},${
                 h - margin - 20 * i - 20
               }) scale(1,-1)`}
               key={i}
@@ -420,7 +443,7 @@ const Chart = (props) => {
               )}
               <rect width="10" height="10" fill={color(i)}></rect>
               <text x="20" y="10">
-                {item}
+                {Object.keys(item)}
               </text>
             </g>
           );
@@ -430,14 +453,14 @@ const Chart = (props) => {
         {miniPieData.map((pie, i) => {
           return pie.map((item, j) => {
             return (
-              <g transform={`translate(${xArray[i].x},0)`} key={j}>
+              <g transform={`translate(${xScale(i)},0)`} key={j}>
                 <path
                   d={miniArcGenerator(item)}
                   fill={color(j)}
                   onClick={() => {
                     handleChangeYear(i);
                   }}
-                  style={{ cursor: "pointer", transition: "1s" }}
+                  style={{ cursor: "pointer", transition: "0.5s" }}
                   onMouseEnter={() => handlePathMouseEnter(i)}
                   onMouseLeave={handlePathMouseLeave}
                 ></path>
@@ -448,7 +471,7 @@ const Chart = (props) => {
             );
           });
         })}
-        <g transform={`translate(${xArray[selectYear - firstYear].x},0)`}>
+        <g transform={`translate(${xScale(selectYear - firstYear)},0)`}>
           <path d={highlightCircle} fill="skyblue"></path>
         </g>
       </g>
@@ -475,7 +498,7 @@ const Chart = (props) => {
           return (
             <g
               key={i}
-              style={{ cursor: "pointer", transition: "1s" }}
+              style={{ cursor: "pointer", transition: "0.5s" }}
               onMouseEnter={handleArcMouseEnter}
               onMouseLeave={handleArcMouseLeave}
               onClick={() => handleChangeMaker(i)}
