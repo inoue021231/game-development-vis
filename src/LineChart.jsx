@@ -40,11 +40,11 @@ const LineAllPlot = ({
   );
 };
 
-const LinePlot = ({ selectPath, selectMaker, color }) => {
+const LinePlot = ({ selectLine, selectMaker, color, line, topRankList }) => {
   return (
     <g>
       <path
-        d={selectPath}
+        d={selectLine}
         stroke={color(selectMaker)}
         strokeWidth="2"
         style={{ transition: "1s" }}
@@ -55,7 +55,7 @@ const LinePlot = ({ selectPath, selectMaker, color }) => {
 };
 
 const LineChart = ({
-  selectPath,
+  selectLine,
   selectMaker,
   topRankList,
   line,
@@ -125,9 +125,11 @@ const LineChart = ({
           })}
           <LinePlot
             {...{
-              selectPath,
+              selectLine,
               selectMaker,
               color,
+              line,
+              topRankList,
             }}
           ></LinePlot>
         </g>

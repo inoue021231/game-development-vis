@@ -1,23 +1,6 @@
 import "./App.css";
 
-const Axis = ({
-  margin,
-  w,
-  h,
-  miniPieData,
-  xScale,
-  miniArcGenerator,
-  color,
-  handleChangeYear,
-  handlePathMouseEnter,
-  handlePathMouseLeave,
-  highlightData,
-  selectPathIndex,
-  selectYear,
-  firstYear,
-  highlightCircle,
-}) => {
-  const padding = 5;
+const Axis = ({ margin, w, h, xScale, firstYear, padding }) => {
   return (
     <g>
       <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
@@ -46,32 +29,6 @@ const Axis = ({
           </g>
         );
       })}
-      <g transform={`translate(${0},${-margin + padding * 3}) scale(1,-1)`}>
-        {miniPieData.map((pie, i) => {
-          return pie.map((item, j) => {
-            return (
-              <g transform={`translate(${xScale(i)},0)`} key={j}>
-                <path
-                  d={miniArcGenerator(item)}
-                  fill={color(j)}
-                  onClick={() => {
-                    handleChangeYear(i);
-                  }}
-                  style={{ cursor: "pointer", transition: "0.5s" }}
-                  onMouseEnter={() => handlePathMouseEnter(i)}
-                  onMouseLeave={handlePathMouseLeave}
-                ></path>
-                {highlightData && selectPathIndex === i && (
-                  <path d={highlightData} fill="skyblue" />
-                )}
-              </g>
-            );
-          });
-        })}
-        <g transform={`translate(${xScale(selectYear - firstYear)},0)`}>
-          <path d={highlightCircle} fill="skyblue"></path>
-        </g>
-      </g>
     </g>
   );
 };

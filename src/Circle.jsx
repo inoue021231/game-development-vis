@@ -6,7 +6,6 @@ const Circle = ({
   lineW,
   margin,
   h,
-  miniPieData,
   setSelectMiniArcIndex,
   setHighlightData,
   handleMakerMouseEnter,
@@ -15,11 +14,66 @@ const Circle = ({
   color,
   selectMiniArcIndex,
   firstYear,
+  xScale,
+  setSelectYear,
+  handlePathMouseEnter,
+  handlePathMouseLeave,
+  highlightData,
+  highlightCircle,
+  selectPathIndex,
+  data,
+  salesCountStr,
+  makerStr,
+  yearCount,
+  makerCount,
+  topRankList,
 }) => {
+  const miniArcGenerator = d3.arc().innerRadius(0).outerRadius(35);
   const arcGenerator = d3.arc().innerRadius(0).outerRadius(120);
   const overlayArcGenerator = d3.arc().innerRadius(0).outerRadius(120);
+  const miniPieData = [];
+  const pie = d3.pie().value((d) => d[salesCountStr]);
+
+  for (let i = 0; i < yearCount; i++) {
+    const pieArray = [];
+    for (let j = 0; j < makerCount; j++) {
+      const d = data[firstYear + i].find(
+        (item) => item[makerStr] === Object.keys(topRankList[j])[0]
+      );
+      if (d) {
+        pieArray.push(d);
+      }
+    }
+    miniPieData.push(pie(pieArray));
+  }
   return (
     <g>
+      <g transform={`translate(${margin - 30},${h + (margin * 1) / 3})`}>
+        {miniPieData.map((pie, i) => {
+          return pie.map((item, j) => {
+            return (
+              <g transform={`translate(${xScale(i)},0)`} key={j}>
+                <path
+                  d={miniArcGenerator(item)}
+                  fill={color(j)}
+                  onClick={() => {
+                    setSelectYear(i + firstYear);
+                  }}
+                  style={{ cursor: "pointer", transition: "0.5s" }}
+                  onMouseEnter={() => handlePathMouseEnter(i)}
+                  onMouseLeave={handlePathMouseLeave}
+                ></path>
+                {highlightData && selectPathIndex === i && (
+                  <path d={highlightData} fill="skyblue" />
+                )}
+              </g>
+            );
+          });
+        })}
+        <g transform={`translate(${xScale(selectYear - firstYear)},0)`}>
+          <path d={highlightCircle} fill="skyblue"></path>
+        </g>
+      </g>
       <g transform={`translate(${lineW + margin * 3},${h - 60})`}>
         {miniPieData[selectYear - firstYear].map((item, i) => {
           const percentage =
