@@ -21,6 +21,14 @@ const LineAllPlot = ({
         const linePath = line[i](Object.values(item).flat());
         return (
           <g key={i}>
+            {highlightMakerIndex === i && (
+              <path
+                d={linePath}
+                stroke="skyblue"
+                fill="none"
+                strokeWidth="5"
+              ></path>
+            )}
             <path
               d={linePath}
               stroke={
@@ -31,14 +39,7 @@ const LineAllPlot = ({
               strokeWidth="2"
               fill="none"
             ></path>
-            {highlightMakerIndex === i && (
-              <path
-                d={linePath}
-                stroke="skyblue"
-                fill="none"
-                strokeWidth="5"
-              ></path>
-            )}
+
             <path
               d={linePath}
               stroke="transparent"
@@ -99,17 +100,7 @@ const Line = ({
         y2={h - margin}
         stroke="gray"
       ></line>
-      {xScale.ticks().map((item, i) => {
-        return (
-          <g transform={`translate(${xScale(item)},0) scale(1,-1)`} key={i}>
-            <line y1="5" stroke="gray"></line>
-            <text y="5" textAnchor="middle" dominantBaseline="text-before-edge">
-              {item + firstYear}
-            </text>
-            <line y1={-h + margin} stroke="lightgray"></line>
-          </g>
-        );
-      })}
+
       {selectMaker === -1 &&
         yScale.ticks().map((item, i) => {
           return (
@@ -399,6 +390,25 @@ const Chart = (props) => {
   return (
     <svg viewBox={`0 0 ${w + 100} ${h + 100}`} className="svg__content">
       <g transform={`translate(${margin - 30},${h - margin / 2}) scale(1,-1)`}>
+        <Axis
+          {...{
+            margin,
+            h,
+            miniPieData,
+            xScale,
+            miniArcGenerator,
+            color,
+            handleChangeYear,
+            handlePathMouseEnter,
+            handlePathMouseLeave,
+            highlightData,
+            selectPathIndex,
+            selectYear,
+            firstYear,
+            highlightCircle,
+            legendW,
+          }}
+        ></Axis>
         <Line
           totalScale={totalScale}
           w={w}
@@ -450,26 +460,6 @@ const Chart = (props) => {
           );
         })}
       </g>
-
-      <Axis
-        {...{
-          margin,
-          h,
-          miniPieData,
-          xScale,
-          miniArcGenerator,
-          color,
-          handleChangeYear,
-          handlePathMouseEnter,
-          handlePathMouseLeave,
-          highlightData,
-          selectPathIndex,
-          selectYear,
-          firstYear,
-          highlightCircle,
-          legendW,
-        }}
-      ></Axis>
 
       <g transform={`translate(${lineW + margin * 3},${h - 60})`}>
         {miniPieData[selectYear - firstYear].map((item, i) => {
