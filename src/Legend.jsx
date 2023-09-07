@@ -3,6 +3,8 @@ import "./App.css";
 const Legend = ({
   h,
   margin,
+  color,
+  legendW,
   topRankList,
   xScale,
   yearCount,
@@ -10,8 +12,6 @@ const Legend = ({
   handleMakerMouseLeave,
   handleChangeMaker,
   highlightMakerIndex,
-  legendW,
-  color,
 }) => {
   return (
     <g>
@@ -19,7 +19,7 @@ const Legend = ({
         return (
           <g
             transform={`translate(${xScale(yearCount - 1) + 60},${
-              h - margin - 20 * i - 20
+              h - margin - 20 * i
             }) scale(1,-1)`}
             key={i}
             onMouseEnter={() => handleMakerMouseEnter(i)}

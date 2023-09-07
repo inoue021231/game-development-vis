@@ -48,7 +48,7 @@ const Circle = ({
   }
   return (
     <g>
-      <g transform={`translate(${margin - 30},${h + (margin * 1) / 3})`}>
+      <g transform={`translate(${margin - 30},${h + margin / 7})`}>
         {miniPieData.map((pie, i) => {
           return pie.map((item, j) => {
             return (
@@ -74,7 +74,7 @@ const Circle = ({
           <path d={highlightCircle} fill="skyblue"></path>
         </g>
       </g>
-      <g transform={`translate(${lineW + margin * 3},${h - 60})`}>
+      <g transform={`translate(${lineW + margin * 3},${h - margin})`}>
         {miniPieData[selectYear - firstYear].map((item, i) => {
           const percentage =
             ((item.endAngle - item.startAngle) / (2 * Math.PI)) * 100;

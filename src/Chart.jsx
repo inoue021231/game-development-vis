@@ -1,4 +1,3 @@
-/* import Data from "./data.json"; */
 import { useState } from "react";
 import * as d3 from "d3";
 import "./App.css";
@@ -18,7 +17,6 @@ const Chart = (props) => {
 
   const years = Object.keys(data).sort();
   const firstYear = Number(years[0]);
-  //const lastYear = Number(years[years.length - 1]);
 
   const makerStr = "メーカー";
   const salesCountStr = "総販売本数";
@@ -171,8 +169,12 @@ const Chart = (props) => {
   };
 
   return (
-    <svg viewBox={`0 0 ${w + 100} ${h + 100}`} className="svg__content">
-      <g transform={`translate(${margin - 30},${h - margin / 2}) scale(1,-1)`}>
+    <svg viewBox={`0 0 ${w + 100} ${h + 50}`} className="svg__content">
+      <g
+        transform={`translate(${margin - 30},${
+          h - (margin * 2) / 3
+        }) scale(1,-1)`}
+      >
         <Axis
           {...{
             w,

@@ -1,10 +1,10 @@
 import "./App.css";
 
 const LineAllPlot = ({
+  color,
   topRankList,
   line,
   highlightMakerIndex,
-  color,
   handleMakerMouseEnter,
   handleMakerMouseLeave,
 }) => {
@@ -30,6 +30,7 @@ const LineAllPlot = ({
               d={linePath}
               stroke="transparent"
               strokeWidth="20"
+              style={{ cursor: "pointer" }}
               onMouseEnter={() => handleMakerMouseEnter(i)}
               onMouseLeave={handleMakerMouseLeave}
             ></path>
@@ -97,10 +98,10 @@ const LineChart = ({
           })}
           <LineAllPlot
             {...{
+              color,
               topRankList,
               line,
               highlightMakerIndex,
-              color,
               handleMakerMouseEnter,
               handleMakerMouseLeave,
             }}
