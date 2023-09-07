@@ -6,7 +6,89 @@ import './App.css';
 const firstYear = 2013;
 
 const Line = (props) => {
+    const { totalScale, w, h, xArray, highlightMakerIndex, selectMaker, path, color, selectPath, margin, totalSales, yScale, yScaleArray } = props
+    return <g>
+        <line x1={xArray[9].x} stroke='gray'></line>
+        <line y1={h - margin} stroke='gray'></line>
+        <line x1={xArray[9].x} x2={xArray[9].x} y1="0" y2={h - margin} stroke='gray'></line>
 
+        {
+            xArray.map((item, i) => {
+                return <g transform={`translate(${item.x},0) scale(1,-1)`} key={i}>
+                    <line y1="5" stroke="gray"></line>
+                    <text y="5" textAnchor='middle' dominantBaseline="text-before-edge">{item.year}</text>
+                    <line y1={-h + margin} stroke="lightgray"></line>
+                </g>
+            })
+        }
+
+        {totalSales.map((_, i) => {
+            if (i !== 0) {
+                return <line x1={xArray[i - 1].x} y1={totalScale(totalSales[i - 1])} x2={xArray[i].x} y2={totalScale(totalSales[i])} stroke='black' strokeDasharray="5 3" key={i}></line>
+            } else {
+                return <div key={i}></div>;
+            }
+        })}
+
+        {selectMaker === -1 && yScale.ticks().map((item, i) => {
+            return <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
+                <line x1="-5" stroke='gray'></line>
+                <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
+                <line x1={xArray[9].x} stroke="lightgray"></line>
+            </g>
+        })}
+
+        {selectMaker !== -1 && yScaleArray[selectMaker].ticks(10).map((item, i) => {
+            return <g transform={`translate(0,${yScaleArray[selectMaker](item)}) scale(1,-1)`} key={i}>
+                <line x1="-5" stroke='gray'></line>
+                <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
+                <line x1={xArray[9].x} stroke="lightgray"></line>
+            </g>
+        })}
+
+        {totalScale.ticks().map((item, i) => {
+            return <g transform={`translate(${xArray[9].x},${totalScale(item)}) scale(1,-1)`} key={i}>
+                <text x="5" textAnchor='start' dominantBaseline="central">{item / 10000}</text>
+            </g>
+        })}
+
+        {highlightMakerIndex !== -1 && selectMaker === -1 &&
+            <path d={path[highlightMakerIndex]} stroke="skyblue" fill="none" strokeWidth="5"></path>
+        }
+
+        {selectMaker === -1 ? path.map((p, i) => {
+            return <path d={p} stroke={color(i)} strokeWidth="2" fill='none' key={i} ></path>
+        }) : <path
+            d={selectPath}
+            stroke={color(selectMaker)}
+            strokeWidth="2"
+            fill='none'
+        ></path>
+        }
+
+        <g transform={`translate(${xArray[9].x},${h - margin}) scale(1,-1)`}>
+            <text y="-10" textAnchor='start'>{`(万本)`}</text>
+        </g>
+        <g transform={`translate(${xArray[9].x + margin / 2},${h / 2}) rotate(270) scale(1,-1)`}>
+            <text>年別総販売本数</text>
+        </g>
+
+        <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
+            <text>年</text>
+        </g>
+        <g transform={`translate(${-margin / 2},${h / 4}) rotate(90) scale(1,-1)`}>
+            <text>メーカー別販売本数</text>
+        </g>
+
+        <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
+            <text y="-10" textAnchor='end'>{`(万本)`}</text>
+        </g>
+
+        <g transform={`translate(${xArray[9].x + 80},${h - margin + 10}) scale(1,-1)`}>
+            <line x1="10" strokeDasharray="5 2" stroke="black"></line>
+            <text x="20" dominantBaseline="central">年別総販売本数</text>
+        </g>
+    </g>
 }
 
 const Circle = (props) => {
@@ -14,7 +96,6 @@ const Circle = (props) => {
 }
 
 const Chart = (props) => {
-    const chart = props.chart;
     const [selectYear, setSelectYear] = useState(firstYear);
     const [selectMaker, setSelectMaker] = useState(-1);
     const [selectPath, setSelectPath] = useState(null);
@@ -115,65 +196,6 @@ const Chart = (props) => {
         );
     }
 
-    /* 面グラフ関連 */
-    const areaPoint = [];
-    for (let i = 0; i < yearCount; i++) {
-        const point = [];
-        for (let j = 0; j < makerCount; j++) {
-            const d = Data[firstYear + i].find(item => item["メーカー"] === topRankList[j]);
-            if (j === 0) {
-                point.push(parseFloat(d["販売シェア"]));
-            } else {
-                if (d) {
-                    point.push(parseFloat(d["販売シェア"]) + point[j - 1]);
-
-                } else {
-                    point.push(point[j - 1]);
-                }
-            }
-
-        }
-        const maxPoint = Math.max(...point);
-        const areaScale = d3.scaleLinear()
-            .domain([0, maxPoint])
-            .range([0, h - margin]);
-
-        const newPoint = point.map((value) => areaScale(value));
-        areaPoint.push(newPoint);
-    }
-
-
-
-    const areaPath = [];
-    const fp = d3.path();
-    fp.moveTo(0, 0);
-    fp.lineTo(xArray[9].x, 0);
-    fp.lineTo(xArray[9].x, areaPoint[9][0]);
-    for (let i = yearCount - 2; i >= 0; i--) {
-        fp.lineTo(xArray[i].x, areaPoint[i][0]);
-    }
-    areaPath.push(fp);
-
-    for (let i = 1; i < makerCount; i++) {
-        const path = d3.path();
-        path.moveTo(0, areaPoint[0][i]);
-        path.lineTo(0, areaPoint[0][i - 1]);
-        for (let j = 1; j < yearCount; j++) {
-            path.lineTo(xArray[j].x, areaPoint[j][i - 1]);
-        }
-        path.lineTo(xArray[9].x, areaPoint[9][i]);
-        for (let j = yearCount - 2; j >= 0; j--) {
-            path.lineTo(xArray[j].x, areaPoint[j][i]);
-        }
-        areaPath.push(path);
-    }
-
-    const getTransparentColor = (i) => {
-        const c = d3.color(color(i));
-        c.opacity = 0.5;
-        return c.toString();
-    };
-
     const handleChangeYear = (i) => {
         setSelectYear(i + firstYear);
     }
@@ -241,87 +263,20 @@ const Chart = (props) => {
     return <svg viewBox={`0 0 ${w + 100} ${h + 100}`} className="svg__content">
         <g transform={`translate(${margin - 30},${h - margin / 2}) scale(1,-1)`}>
 
-            {
-                xArray.map((item, i) => {
-                    return <g transform={`translate(${item.x},0) scale(1,-1)`} key={i}>
-                        <line y1="5" stroke="gray"></line>
-                        <text y="5" textAnchor='middle' dominantBaseline="text-before-edge">{item.year}</text>
-                        <line y1={-h + margin} stroke="lightgray"></line>
-                    </g>
-                })
-            }
-
-            <line x1={xArray[9].x} stroke='gray'></line>
-            <line y1={h - margin} stroke='gray'></line>
-            <line x1={xArray[9].x} x2={xArray[9].x} y1="0" y2={h - margin} stroke='gray'></line>
-
-            {chart === "Line Chart" && <g>
-
-                {selectMaker === -1 ? yScale.ticks().map((item, i) => {
-                    return <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
-                        <line x1="-5" stroke='gray'></line>
-                        <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
-                        <line x1={xArray[9].x} stroke="lightgray"></line>
-                    </g>
-                }) : yScaleArray[selectMaker].ticks(10).map((item, i) => {
-                    return <g transform={`translate(0,${yScaleArray[selectMaker](item)}) scale(1,-1)`} key={i}>
-                        <line x1="-5" stroke='gray'></line>
-                        <text x="-5" textAnchor='end' dominantBaseline="central">{item / 10000}</text>
-                        <line x1={xArray[9].x} stroke="lightgray"></line>
-                    </g>
-                })}
-
-                {totalSales.map((_, i) => {
-                    if (i !== 0) {
-                        return <line x1={xArray[i - 1].x} y1={totalScale(totalSales[i - 1])} x2={xArray[i].x} y2={totalScale(totalSales[i])} stroke='black' strokeDasharray="5 3" key={i}></line>
-                    } else {
-                        return <div key={i}></div>;
-                    }
-                })}
-
-                {totalScale.ticks().map((item, i) => {
-                    return <g transform={`translate(${xArray[9].x},${totalScale(item)}) scale(1,-1)`} key={i}>
-                        <text x="5" textAnchor='start' dominantBaseline="central">{item / 10000}</text>
-                    </g>
-                })}
-
-                {highlightMakerIndex !== -1 && selectMaker === -1 &&
-                    <path d={path[highlightMakerIndex]} stroke="skyblue" fill="none" strokeWidth="5"></path>
-                }
-
-                {selectMaker === -1 ? path.map((p, i) => {
-                    return <path d={p} stroke={color(i)} strokeWidth="2" fill='none' key={i} ></path>
-                }) : <path
-                    d={selectPath}
-                    stroke={color(selectMaker)}
-                    strokeWidth="2"
-                    fill='none'
-                ></path>
-                }
-
-                <g transform={`translate(${xArray[9].x},${h - margin}) scale(1,-1)`}>
-                    <text y="-10" textAnchor='start'>{`(万本)`}</text>
-                </g>
-                <g transform={`translate(${xArray[9].x + margin / 2},${h / 2}) rotate(270) scale(1,-1)`}>
-                    <text>年別総販売本数</text>
-                </g>
-
-                <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>
-                    <text>年</text>
-                </g>
-                <g transform={`translate(${-margin / 2},${h / 4}) rotate(90) scale(1,-1)`}>
-                    <text>メーカー別販売本数</text>
-                </g>
-
-                <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
-                    <text y="-10" textAnchor='end'>{`(万本)`}</text>
-                </g>
-
-                <g transform={`translate(${xArray[9].x + 80},${h - margin + 10}) scale(1,-1)`}>
-                    <line x1="10" strokeDasharray="5 2" stroke="black"></line>
-                    <text x="20" dominantBaseline="central">年別総販売本数</text>
-                </g>
-            </g>}
+            <Line
+                totalScale={totalScale}
+                w={w}
+                h={h}
+                xArray={xArray}
+                highlightMakerIndex={highlightMakerIndex}
+                selectMaker={selectMaker}
+                path={path}
+                color={color}
+                selectPath={selectPath}
+                margin={margin}
+                totalSales={totalSales}
+                yScale={yScale}
+                yScaleArray={yScaleArray}></Line>
 
             {
                 topRankList.map((item, i) => {
@@ -344,13 +299,6 @@ const Chart = (props) => {
                     </g>
                 })
             }
-
-            {chart === "Area Chart" && areaPath.map((item, i) => {
-                return <g transform={`translate(0,${h - margin}) scale(1,-1)`}>
-                    <path d={item} fill={getTransparentColor(i)} key={i}></path>
-                </g>
-            })}
-
 
         </g>
         <g transform={`translate(${margin - 30},${h + 30})`}>

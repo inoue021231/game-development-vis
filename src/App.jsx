@@ -3,23 +3,15 @@ import './App.css';
 import Chart from './Chart';
 
 const App = () => {
-  const [chart, setChart] = useState("Line Chart");
-  const handleChangeChart = (event) => {
-    setChart(event.target.value);
-  }
 
   return (
     <div className="app-container">
       <div className="header">
         <h1>Game Development Visualization</h1>
-        <select className="form-select" onChange={handleChangeChart}>
-          <option>Line Chart</option>
-          <option>Area Chart</option>
-        </select>
       </div>
 
       <div className="svg__container">
-        <Chart chart={chart} />
+        <Chart />
       </div>
 
       <div className="footer">
