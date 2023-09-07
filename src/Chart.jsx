@@ -3,18 +3,18 @@ import { useState, useEffect } from "react";
 import * as d3 from "d3";
 import "./App.css";
 import Total from "./Total";
+import Axis from "./Axis";
 
 const firstYear = 2013;
 
-const LineAllPlot = (props) => {
-  const {
-    topRankList,
-    line,
-    highlightMakerIndex,
-    color,
-    handleMakerMouseEnter,
-    handleMakerMouseLeave,
-  } = props;
+const LineAllPlot = ({
+  topRankList,
+  line,
+  highlightMakerIndex,
+  color,
+  handleMakerMouseEnter,
+  handleMakerMouseLeave,
+}) => {
   return (
     <g>
       {topRankList.map((item, i) => {
@@ -68,29 +68,26 @@ const LinePlot = ({ selectPath, selectMaker, color }) => {
   );
 };
 
-const Line = (props) => {
-  const {
-    totalScale,
-    w,
-    h,
-    highlightMakerIndex,
-    selectMaker,
-    //path,
-    color,
-    selectPath,
-    margin,
-    totalSales,
-    yScale,
-    yScaleArray,
-    handleMakerMouseEnter,
-    handleMakerMouseLeave,
-    handleChangeMaker,
-    topRankList,
-    line,
-    xScale,
-    yearCount,
-  } = props;
-
+const Line = ({
+  totalScale,
+  w,
+  h,
+  highlightMakerIndex,
+  selectMaker,
+  color,
+  selectPath,
+  margin,
+  totalSales,
+  yScale,
+  yScaleArray,
+  handleMakerMouseEnter,
+  handleMakerMouseLeave,
+  handleChangeMaker,
+  topRankList,
+  line,
+  xScale,
+  yearCount,
+}) => {
   return (
     <g>
       <line x1={xScale(yearCount - 1)} stroke="gray"></line>
@@ -260,12 +257,8 @@ const Chart = (props) => {
         topRankList[i][name].push(0);
       }
     }
-
-    /* path[i] = d3.path();
-    path[i].moveTo(0, yScale()); */
   }
 
-  const path = new Array(makerCount);
   const line = new Array(makerCount);
   for (let i = 0; i < makerCount; i++) {
     line[i] = d3
@@ -401,6 +394,8 @@ const Chart = (props) => {
 
   const overlayArcGenerator = d3.arc().innerRadius(0).outerRadius(120);
 
+  console.log(miniPieData);
+
   return (
     <svg viewBox={`0 0 ${w + 100} ${h + 100}`} className="svg__content">
       <g transform={`translate(${margin - 30},${h - margin / 2}) scale(1,-1)`}>
@@ -441,7 +436,7 @@ const Chart = (props) => {
                 <rect
                   x="0"
                   y="-5"
-                  width={makerNameWidth}
+                  width={legendW}
                   height="20"
                   fill="skyblue"
                   opacity="0.5"
@@ -455,33 +450,28 @@ const Chart = (props) => {
           );
         })}
       </g>
-      <g transform={`translate(${margin - 30},${h + 30})`}>
-        {miniPieData.map((pie, i) => {
-          return pie.map((item, j) => {
-            return (
-              <g transform={`translate(${xScale(i)},0)`} key={j}>
-                <path
-                  d={miniArcGenerator(item)}
-                  fill={color(j)}
-                  onClick={() => {
-                    handleChangeYear(i);
-                  }}
-                  style={{ cursor: "pointer", transition: "0.5s" }}
-                  onMouseEnter={() => handlePathMouseEnter(i)}
-                  onMouseLeave={handlePathMouseLeave}
-                ></path>
-                {highlightData && selectPathIndex === i && (
-                  <path d={highlightData} fill="skyblue" />
-                )}
-              </g>
-            );
-          });
-        })}
-        <g transform={`translate(${xScale(selectYear - firstYear)},0)`}>
-          <path d={highlightCircle} fill="skyblue"></path>
-        </g>
-      </g>
-      <g transform={`translate(${w - 200},${h - 60})`}>
+
+      <Axis
+        {...{
+          margin,
+          h,
+          miniPieData,
+          xScale,
+          miniArcGenerator,
+          color,
+          handleChangeYear,
+          handlePathMouseEnter,
+          handlePathMouseLeave,
+          highlightData,
+          selectPathIndex,
+          selectYear,
+          firstYear,
+          highlightCircle,
+          legendW,
+        }}
+      ></Axis>
+
+      <g transform={`translate(${lineW + margin * 3},${h - 60})`}>
         {miniPieData[selectYear - firstYear].map((item, i) => {
           const percentage =
             ((item.endAngle - item.startAngle) / (2 * Math.PI)) * 100;

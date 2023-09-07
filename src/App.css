@@ -36,6 +36,7 @@ body {
 
 text:hover {
   background-color: aqua;
+  display: inline-block;
 }
 
 /* App.jsx */
@@ -44,4 +45,8 @@ text:hover {
   /* 幅を100%に設定 */
   height: 100%;
   /* 高さを100%に設定 */
+}
+
+.svg__content text {
+  background: red;
 }
