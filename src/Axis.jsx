@@ -1,6 +1,6 @@
 import "./App.css";
 
-const Axis = ({ margin, w, h, xScale, firstYear, padding }) => {
+const Axis = ({ w, h, margin, xScale, firstYear, padding }) => {
   return (
     <g>
       <g transform={`translate(${(w - margin * 5) / 2},-40) scale(1,-1)`}>

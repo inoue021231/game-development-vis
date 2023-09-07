@@ -1,11 +1,11 @@
 import "./App.css";
 
 const Legend = ({
+  h,
+  margin,
   topRankList,
   xScale,
   yearCount,
-  h,
-  margin,
   handleMakerMouseEnter,
   handleMakerMouseLeave,
   handleChangeMaker,

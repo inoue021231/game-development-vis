@@ -175,9 +175,9 @@ const Chart = (props) => {
       <g transform={`translate(${margin - 30},${h - margin / 2}) scale(1,-1)`}>
         <Axis
           {...{
-            margin,
             w,
             h,
+            margin,
             xScale,
             firstYear,
             padding,
@@ -185,6 +185,9 @@ const Chart = (props) => {
         ></Axis>
         <LineChart
           {...{
+            h,
+            margin,
+            padding,
             selectLine,
             selectMaker,
             topRankList,
@@ -197,18 +200,15 @@ const Chart = (props) => {
             yScale,
             yearCount,
             yScaleArray,
-            h,
-            margin,
-            padding,
           }}
         ></LineChart>
         <Legend
           {...{
+            h,
+            margin,
             topRankList,
             xScale,
             yearCount,
-            h,
-            margin,
             handleMakerMouseEnter,
             handleMakerMouseLeave,
             handleChangeMaker,
@@ -220,10 +220,11 @@ const Chart = (props) => {
       </g>
       <Circle
         {...{
+          data,
+          h,
+          margin,
           selectYear,
           lineW,
-          margin,
-          h,
           setSelectMiniArcIndex,
           setHighlightData,
           handleMakerMouseEnter,
@@ -239,7 +240,6 @@ const Chart = (props) => {
           highlightData,
           highlightCircle,
           selectPathIndex,
-          data,
           salesCountStr,
           makerStr,
           yearCount,

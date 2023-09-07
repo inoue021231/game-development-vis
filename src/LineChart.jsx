@@ -55,6 +55,9 @@ const LinePlot = ({ selectLine, selectMaker, color }) => {
 };
 
 const LineChart = ({
+  h,
+  margin,
+  padding,
   selectLine,
   selectMaker,
   topRankList,
@@ -67,9 +70,6 @@ const LineChart = ({
   yScale,
   yearCount,
   yScaleArray,
-  h,
-  margin,
-  padding,
 }) => {
   return (
     <g>

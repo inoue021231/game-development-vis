@@ -2,10 +2,11 @@ import "./App.css";
 import * as d3 from "d3";
 
 const Circle = ({
+  data,
+  h,
+  margin,
   selectYear,
   lineW,
-  margin,
-  h,
   setSelectMiniArcIndex,
   setHighlightData,
   handleMakerMouseEnter,
@@ -21,7 +22,6 @@ const Circle = ({
   highlightData,
   highlightCircle,
   selectPathIndex,
-  data,
   salesCountStr,
   makerStr,
   yearCount,
@@ -112,17 +112,18 @@ const Circle = ({
               {selectMiniArcIndex === i && (
                 <path d={overlayArcGenerator(item)} fill="skyblue" />
               )}
-
-              <text
-                x={labelX}
-                y={labelY}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fill="white"
-                fontSize="12px"
-              >
-                {percentage.toFixed(1)}%
-              </text>
+              {percentage >= 3 && (
+                <text
+                  x={labelX}
+                  y={labelY}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="white"
+                  fontSize="12px"
+                >
+                  {percentage.toFixed(1)}%
+                </text>
+              )}
             </g>
           );
         })}
