@@ -23,8 +23,6 @@ const Line = (props) => {
             })
         }
 
-        
-
         {selectMaker === -1 && yScale.ticks().map((item, i) => {
             return <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
                 <line x1="-5" stroke='gray'></line>
@@ -46,11 +44,18 @@ const Line = (props) => {
         }
 
         {selectMaker === -1 ? path.map((p, i) => {
-            return <path d={p} stroke={color(i)} strokeWidth="2" fill='none' key={i} ></path>
+            return <path 
+                d={p}
+                stroke={highlightMakerIndex === i || highlightMakerIndex === -1 ? color(i):"gray"}
+                strokeWidth="2"
+                fill='none'
+                key={i}
+            ></path>
         }) : <path
             d={selectPath}
             stroke={color(selectMaker)}
             strokeWidth="2"
+            style={{transition:"1s"}}
             fill='none'
         ></path>
         }
@@ -298,7 +303,8 @@ const Chart = (props) => {
                             d={miniArcGenerator(item)}
                             fill={color(j)}
                             onClick={() => { handleChangeYear(i) }}
-                            style={{ cursor: 'pointer' }}
+                            style={{ cursor: 'pointer' 
+                                    ,transition:"1s"}}
                             onMouseEnter={() => handlePathMouseEnter(i)}
                             onMouseLeave={handlePathMouseLeave}
                         ></path>
@@ -333,7 +339,7 @@ const Chart = (props) => {
                 return (
                     <g
                         key={i}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', transition:"1s"}}
                         onMouseEnter={handleArcMouseEnter}
                         onMouseLeave={handleArcMouseLeave}
                         onClick={() => handleChangeMaker(i)}
