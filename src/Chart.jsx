@@ -199,6 +199,7 @@ const Chart = (props) => {
             yScaleArray,
             h,
             margin,
+            padding,
           }}
         ></LineChart>
         <Legend

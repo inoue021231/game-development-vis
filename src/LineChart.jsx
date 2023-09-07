@@ -40,7 +40,7 @@ const LineAllPlot = ({
   );
 };
 
-const LinePlot = ({ selectLine, selectMaker, color, line, topRankList }) => {
+const LinePlot = ({ selectLine, selectMaker, color }) => {
   return (
     <g>
       <path
@@ -69,6 +69,7 @@ const LineChart = ({
   yScaleArray,
   h,
   margin,
+  padding,
 }) => {
   return (
     <g>
@@ -86,8 +87,8 @@ const LineChart = ({
           {yScale.ticks().map((item, i) => {
             return (
               <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
-                <line x1="-5" stroke="gray"></line>
-                <text x="-5" textAnchor="end" dominantBaseline="central">
+                <line x1={-padding} stroke="gray"></line>
+                <text x={-padding} textAnchor="end" dominantBaseline="central">
                   {item / 10000}
                 </text>
                 <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
@@ -115,8 +116,8 @@ const LineChart = ({
                 )}) scale(1,-1)`}
                 key={i}
               >
-                <line x1="-5" stroke="gray"></line>
-                <text x="-5" textAnchor="end" dominantBaseline="central">
+                <line x1={-padding} stroke="gray"></line>
+                <text x={-padding} textAnchor="end" dominantBaseline="central">
                   {item / 10000}
                 </text>
                 <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
@@ -128,8 +129,6 @@ const LineChart = ({
               selectLine,
               selectMaker,
               color,
-              line,
-              topRankList,
             }}
           ></LinePlot>
         </g>
