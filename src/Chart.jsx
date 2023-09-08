@@ -31,6 +31,7 @@ const Chart = (props) => {
 
   const lineW = (w * 2) / 3;
   const legendW = w / 3;
+  const miniArcRadius = 35;
 
   const salesFigures = [];
   const color = d3
@@ -45,8 +46,8 @@ const Chart = (props) => {
 
   const highlightCircle = d3
     .arc()
-    .innerRadius(35)
-    .outerRadius(38)
+    .innerRadius(miniArcRadius)
+    .outerRadius(miniArcRadius + 3)
     .startAngle(0)
     .endAngle(2 * Math.PI)();
 
@@ -243,6 +244,7 @@ const Chart = (props) => {
           yearCount,
           makerCount,
           topRankList,
+          miniArcRadius,
         }}
       ></Circle>
     </svg>

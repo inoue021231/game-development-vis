@@ -27,10 +27,12 @@ const Circle = ({
   yearCount,
   makerCount,
   topRankList,
+  miniArcRadius,
 }) => {
-  const miniArcGenerator = d3.arc().innerRadius(0).outerRadius(35);
-  const arcGenerator = d3.arc().innerRadius(0).outerRadius(120);
-  const overlayArcGenerator = d3.arc().innerRadius(0).outerRadius(120);
+  const arcRadius = 120;
+  const miniArcGenerator = d3.arc().innerRadius(0).outerRadius(miniArcRadius);
+  const arcGenerator = d3.arc().innerRadius(0).outerRadius(arcRadius);
+  const overlayArcGenerator = d3.arc().innerRadius(0).outerRadius(arcRadius);
   const miniPieData = [];
   const pie = d3.pie().value((d) => d[salesCountStr]);
 
