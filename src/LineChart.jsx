@@ -1,76 +1,18 @@
-import "./App.css";
-
-const LineAllPlot = ({
-  color,
-  topRankList,
-  line,
-  highlightMakerIndex,
-  handleMakerMouseEnter,
-  handleMakerMouseLeave,
-}) => {
-  return (
-    <g>
-      {topRankList.map((item, i) => {
-        const linePath = line[i](Object.values(item).flat());
-        return (
-          <g fill="none" key={i}>
-            {highlightMakerIndex === i && (
-              <path d={linePath} stroke="skyblue" strokeWidth="8"></path>
-            )}
-            <path
-              d={linePath}
-              stroke={
-                highlightMakerIndex === i || highlightMakerIndex === -1
-                  ? color(i)
-                  : "gray"
-              }
-              strokeWidth="2"
-            ></path>
-            <path
-              d={linePath}
-              stroke="transparent"
-              strokeWidth="20"
-              style={{ cursor: "pointer" }}
-              onMouseEnter={() => handleMakerMouseEnter(i)}
-              onMouseLeave={handleMakerMouseLeave}
-            ></path>
-          </g>
-        );
-      })}
-    </g>
-  );
-};
-
-const LinePlot = ({ selectLine, selectMaker, color }) => {
-  return (
-    <g>
-      <path
-        d={selectLine}
-        stroke={color(selectMaker)}
-        strokeWidth="2"
-        style={{ transition: "1s" }}
-        fill="none"
-      ></path>
-    </g>
-  );
-};
-
 const LineChart = ({
   h,
   margin,
   padding,
-  selectLine,
-  selectMaker,
-  topRankList,
-  line,
   highlightMakerIndex,
   color,
   handleMakerMouseEnter,
   handleMakerMouseLeave,
   xScale,
-  yScale,
   yearCount,
-  yScaleArray,
+  newlinearray,
+  NYScale,
+  highlightFlag,
+  setHighlightFlag,
+  selectMakerList,
 }) => {
   return (
     <g>
@@ -83,57 +25,57 @@ const LineChart = ({
         y2={h - margin}
         stroke="gray"
       ></line>
-      {selectMaker === -1 ? (
-        <g>
-          {yScale.ticks().map((item, i) => {
-            return (
-              <g transform={`translate(0,${yScale(item)}) scale(1,-1)`} key={i}>
-                <line x1={-padding} stroke="gray"></line>
-                <text x={-padding} textAnchor="end" dominantBaseline="central">
-                  {item / 10000}
-                </text>
-                <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
-              </g>
-            );
-          })}
-          <LineAllPlot
-            {...{
-              color,
-              topRankList,
-              line,
-              highlightMakerIndex,
-              handleMakerMouseEnter,
-              handleMakerMouseLeave,
-            }}
-          ></LineAllPlot>
-        </g>
-      ) : (
-        <g>
-          {yScaleArray[selectMaker].ticks(10).map((item, i) => {
-            return (
-              <g
-                transform={`translate(0,${yScaleArray[selectMaker](
-                  item
-                )}) scale(1,-1)`}
-                key={i}
-              >
-                <line x1={-padding} stroke="gray"></line>
-                <text x={-padding} textAnchor="end" dominantBaseline="central">
-                  {item / 10000}
-                </text>
-                <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
-              </g>
-            );
-          })}
-          <LinePlot
-            {...{
-              selectLine,
-              selectMaker,
-              color,
-            }}
-          ></LinePlot>
-        </g>
-      )}
+      {NYScale.map((item, i) => {
+        return (
+          <g
+            transform={`translate(0,${
+              ((h - margin) * i) / (NYScale.length - 1)
+            }) scale(1,-1)`}
+            key={i}
+          >
+            <line x1={-padding} stroke="gray"></line>
+            <text x={-padding} textAnchor="end" dominantBaseline="central">
+              {item / 10000}
+            </text>
+            <line x1={xScale(yearCount - 1)} stroke="lightgray"></line>
+          </g>
+        );
+      })}
+      {newlinearray.map((item, i) => {
+        let flag = false;
+        if (highlightMakerIndex !== -1) {
+          flag = !selectMakerList[highlightMakerIndex];
+        }
+        return item !== null ? (
+          <g fill="none" key={i}>
+            {highlightMakerIndex === i && highlightFlag && (
+              <path d={item} stroke="skyblue" strokeWidth="8"></path>
+            )}
+            <path
+              d={item}
+              stroke={
+                highlightMakerIndex === i || highlightMakerIndex === -1 || flag
+                  ? color(i)
+                  : "gray"
+              }
+              strokeWidth="2"
+              style={{ transition: "d 0.5s" }}
+              onTransitionEnd={() => setHighlightFlag(true)}
+              key={i}
+            ></path>
+            <path
+              d={item}
+              stroke="transparent"
+              strokeWidth="20"
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => handleMakerMouseEnter(i)}
+              onMouseLeave={handleMakerMouseLeave}
+            ></path>
+          </g>
+        ) : (
+          <g key={i}></g>
+        );
+      })}
     </g>
   );
 };

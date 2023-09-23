@@ -1,4 +1,3 @@
-import "./App.css";
 import * as d3 from "d3";
 
 const Circle = ({
@@ -42,8 +41,6 @@ const Circle = ({
       const d = data[firstYear + i].find(
         (item) => item[makerStr] === Object.keys(topRankList[j])[0]
       );
-
-      console.log(Object.keys(topRankList[j])[0]);
       if (d) {
         pieArray.push(d);
       }

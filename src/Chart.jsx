@@ -1,48 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as d3 from "d3";
-import "./App.css";
 import Axis from "./Axis";
 import LineChart from "./LineChart";
 import Legend from "./Legend";
 import Circle from "./Circle";
 
 const Chart = (props) => {
-  const [data] = useState(props.data);
-  const [selectMaker, setSelectMaker] = useState(-1);
+  const data = props.data;
+  const makerCount = 10;
+  const w = 1200;
+  const h = 450;
+  const margin = 100;
+  const padding = 5;
+  const makerStr = "メーカー";
+  const salesCountStr = "総販売本数";
+
+  const [selectMakerList, setSelectMakerList] = useState(
+    Array(makerCount).fill(false)
+  );
   const [selectMiniArcIndex, setSelectMiniArcIndex] = useState(-1);
   const [selectPathIndex, setSelectPathIndex] = useState(-1);
   const [highlightMakerIndex, setHighlightMakerIndex] = useState(-1);
   const [highlightData, setHighlightData] = useState(null);
-  const [selectLine, setSelectLine] = useState(null);
+  const [NYScale, setNYScale] = useState([]);
+  const [newlinearray, setNewlinearray] = useState([]);
+  const [highlightFlag, setHighlightFlag] = useState(true);
 
   const years = Object.keys(data).sort();
   const firstYear = Number(years[0]);
 
-  const makerStr = "メーカー";
-  const salesCountStr = "総販売本数";
   const [selectYear, setSelectYear] = useState(firstYear);
 
   const yearCount = Object.keys(data).length;
-  const makerCount = 10;
-  const w = 1200,
-    h = 450,
-    margin = 100;
-  const padding = 5;
-
   const lineW = (w * 2) / 3;
   const legendW = w / 3;
   const miniArcRadius = 35;
 
-  const salesFigures = [];
   const color = d3
     .scaleOrdinal(d3.schemeCategory10)
     .domain(d3.range(makerCount));
-
-  for (let i = 0; i < yearCount; i++) {
-    for (let j = 0; j < data[firstYear + i].length; j++) {
-      salesFigures.push(Number(data[firstYear + i][j][salesCountStr]));
-    }
-  }
 
   const highlightCircle = d3
     .arc()
@@ -55,12 +51,6 @@ const Chart = (props) => {
     .scaleLinear()
     .domain([0, yearCount - 1])
     .range([0, lineW])
-    .nice();
-
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, Math.max(...salesFigures)])
-    .range([0, h - margin])
     .nice();
 
   const topRankList = [];
@@ -81,68 +71,13 @@ const Chart = (props) => {
     }
   }
 
-  const line = new Array(makerCount);
-  for (let i = 0; i < makerCount; i++) {
-    line[i] = d3
-      .line()
-      .x((_, i) => xScale(i))
-      .y((d) => yScale(d));
-  }
-
-  const yScaleArray = [];
-
-  for (let i = 0; i < makerCount; i++) {
-    const array = [];
-    for (let j = 0; j < yearCount; j++) {
-      const d = data[firstYear + j].find(
-        (item) => item[makerStr] === Object.keys(topRankList[i])[0]
-      );
-      if (d) {
-        array.push(d[salesCountStr]);
-      }
-    }
-    yScaleArray.push(
-      d3
-        .scaleLinear()
-        .domain([0, Math.max(...array)])
-        .range([0, h - margin])
-        .nice()
-    );
-  }
-
   const handleChangeMaker = (i) => {
-    if (selectMaker === i) {
-      const line = d3
-        .line()
-        .x((_, i) => xScale(i))
-        .y((d) => yScale(d));
-      setSelectLine(line);
-      setSelectMaker(-1);
-    } else {
-      const array = [];
-      for (let j = 0; j < yearCount; j++) {
-        const d = data[firstYear + j].find(
-          (item) => item[makerStr] === Object.keys(topRankList[i])[0]
-        );
-
-        if (d) {
-          array.push(d[salesCountStr]);
-        }
-      }
-
-      const newYScale = d3
-        .scaleLinear()
-        .domain([0, Math.max(...array)])
-        .range([0, h - margin])
-        .nice();
-      const newLine = d3
-        .line()
-        .x((_, i) => xScale(i))
-        .y((d) => newYScale(d));
-
-      setSelectLine(newLine(Object.values(topRankList[i]).flat()));
-      setSelectMaker(i);
-    }
+    setSelectMakerList(
+      selectMakerList.map((item, j) => {
+        return i === j ? !item : item;
+      })
+    );
+    setHighlightFlag(false);
   };
 
   const handlePathMouseEnter = (i) => {
@@ -158,12 +93,53 @@ const Chart = (props) => {
   const handleMakerMouseEnter = (i) => {
     setSelectMiniArcIndex(i);
     setHighlightMakerIndex(i);
+    setHighlightFlag(true);
   };
 
   const handleMakerMouseLeave = () => {
     setHighlightMakerIndex(-1);
     setSelectMiniArcIndex(-1);
   };
+
+  useEffect(() => {
+    const scale = d3
+      .scaleLinear()
+      .domain([0, yearCount - 1])
+      .range([0, lineW])
+      .nice();
+    const max = Math.max(
+      ...topRankList
+        .map((item, i) => {
+          const name = Object.keys(item).flat();
+          return selectMakerList[i] || selectMakerList.every((value) => !value)
+            ? item[name]
+            : 0;
+        })
+        .flat()
+    );
+
+    const newScale = d3
+      .scaleLinear()
+      .domain([0, max])
+      .range([0, h - margin])
+      .nice();
+
+    const line = d3
+      .line()
+      .x((_, i) => scale(i))
+      .y((d) => newScale(d));
+
+    const newLine = topRankList.map((item, i) => {
+      const name = Object.keys(item).flat();
+      console.log(line(item[name]));
+      return selectMakerList[i] || selectMakerList.every((value) => !value)
+        ? line(item[name])
+        : null;
+    });
+    setNYScale(newScale.ticks());
+    setNewlinearray(newLine);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectMakerList]);
 
   return (
     <svg viewBox={`0 0 ${w + 100} ${h + 50}`} className="svg__content">
@@ -187,18 +163,17 @@ const Chart = (props) => {
             h,
             margin,
             padding,
-            selectLine,
-            selectMaker,
-            topRankList,
-            line,
             highlightMakerIndex,
             color,
             handleMakerMouseEnter,
             handleMakerMouseLeave,
             xScale,
-            yScale,
             yearCount,
-            yScaleArray,
+            newlinearray,
+            NYScale,
+            highlightFlag,
+            setHighlightFlag,
+            selectMakerList,
           }}
         ></LineChart>
         <Legend
@@ -214,6 +189,7 @@ const Chart = (props) => {
             highlightMakerIndex,
             legendW,
             color,
+            selectMakerList,
           }}
         ></Legend>
       </g>

@@ -1,5 +1,3 @@
-import "./App.css";
-
 const Legend = ({
   h,
   margin,
@@ -12,6 +10,7 @@ const Legend = ({
   handleMakerMouseLeave,
   handleChangeMaker,
   highlightMakerIndex,
+  selectMakerList,
 }) => {
   return (
     <g>
@@ -24,9 +23,22 @@ const Legend = ({
             key={i}
             onMouseEnter={() => handleMakerMouseEnter(i)}
             onMouseLeave={handleMakerMouseLeave}
-            onClick={() => handleChangeMaker(i)}
+            onClick={() => {
+              handleChangeMaker(i);
+            }}
             style={{ cursor: "pointer" }}
           >
+            {selectMakerList[i] && (
+              <rect
+                x="0"
+                y="-5"
+                width={legendW}
+                height="20"
+                fill="skyblue"
+                opacity="0.5"
+              />
+            )}
+
             {highlightMakerIndex === i && (
               <rect
                 x="0"
@@ -37,6 +49,7 @@ const Legend = ({
                 opacity="0.5"
               />
             )}
+
             <rect width="10" height="10" fill={color(i)}></rect>
             <text x="20" y="10">
               {Object.keys(item)}
