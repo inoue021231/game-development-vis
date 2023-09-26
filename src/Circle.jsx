@@ -24,7 +24,6 @@ const Circle = ({
   salesCountStr,
   makerStr,
   yearCount,
-  makerCount,
   topRankList,
   miniArcRadius,
 }) => {
@@ -32,21 +31,21 @@ const Circle = ({
   const miniArcGenerator = d3.arc().innerRadius(0).outerRadius(miniArcRadius);
   const arcGenerator = d3.arc().innerRadius(0).outerRadius(arcRadius);
   const overlayArcGenerator = d3.arc().innerRadius(0).outerRadius(arcRadius);
-  const miniPieData = [];
   const pie = d3.pie().value((d) => d[salesCountStr]);
 
-  for (let i = 0; i < yearCount; i++) {
-    const pieArray = [];
-    for (let j = 0; j < makerCount; j++) {
-      const d = data[firstYear + i].find(
-        (item) => item[makerStr] === Object.keys(topRankList[j])[0]
-      );
-      if (d) {
-        pieArray.push(d);
-      }
-    }
-    miniPieData.push(pie(pieArray));
-  }
+  const miniPieData = Array(yearCount)
+    .fill(null)
+    .map((_, i) => {
+      const newArray = topRankList
+        .map((item) => {
+          return data[firstYear + i].find(
+            (data) => data[makerStr] === Object.keys(item)[0]
+          );
+        })
+        .filter((item) => item !== undefined);
+      return pie(newArray);
+    });
+
   return (
     <g>
       <g transform={`translate(${margin - 30},${h + margin / 7})`}>

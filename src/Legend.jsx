@@ -1,8 +1,8 @@
 const Legend = ({
+  w,
   h,
   margin,
   color,
-  legendW,
   topRankList,
   xScale,
   yearCount,
@@ -12,6 +12,7 @@ const Legend = ({
   highlightMakerIndex,
   selectMakerList,
 }) => {
+  const legendW = w / 3;
   return (
     <g>
       {topRankList.map((item, i) => {

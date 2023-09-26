@@ -33,12 +33,7 @@ const Chart = (props) => {
 
   const yearCount = Object.keys(data).length;
   const lineW = (w * 2) / 3;
-  const legendW = w / 3;
   const miniArcRadius = 35;
-
-  const color = d3
-    .scaleOrdinal(d3.schemeCategory10)
-    .domain(d3.range(makerCount));
 
   const highlightCircle = d3
     .arc()
@@ -53,23 +48,19 @@ const Chart = (props) => {
     .range([0, lineW])
     .nice();
 
-  const topRankList = [];
-  for (let i = 0; i < makerCount; i++) {
+  const topRankList = [...Array(makerCount)].map((_, i) => {
     const name = data[firstYear + yearCount - 1][i][makerStr];
-    topRankList.push({
-      [name]: [],
-    });
+    return {
+      [name]: [...Array(yearCount)].map((_, j) => {
+        const d = data[firstYear + j].find((item) => item[makerStr] === name);
+        return d ? Number(d[salesCountStr]) : 0;
+      }),
+    };
+  });
 
-    for (let j = 0; j < yearCount; j++) {
-      const year = firstYear + j;
-      const d = data[year].find((item) => item[makerStr] === name);
-      if (d) {
-        topRankList[i][name].push(Number(d[salesCountStr]));
-      } else {
-        topRankList[i][name].push(0);
-      }
-    }
-  }
+  const color = d3
+    .scaleOrdinal(d3.schemeCategory10)
+    .domain(d3.range(topRankList.length));
 
   const handleChangeMaker = (i) => {
     setSelectMakerList(
@@ -131,7 +122,6 @@ const Chart = (props) => {
 
     const newLine = topRankList.map((item, i) => {
       const name = Object.keys(item).flat();
-      console.log(line(item[name]));
       return selectMakerList[i] || selectMakerList.every((value) => !value)
         ? line(item[name])
         : null;
@@ -178,6 +168,7 @@ const Chart = (props) => {
         ></LineChart>
         <Legend
           {...{
+            w,
             h,
             margin,
             topRankList,
@@ -187,7 +178,6 @@ const Chart = (props) => {
             handleMakerMouseLeave,
             handleChangeMaker,
             highlightMakerIndex,
-            legendW,
             color,
             selectMakerList,
           }}
@@ -218,7 +208,6 @@ const Chart = (props) => {
           salesCountStr,
           makerStr,
           yearCount,
-          makerCount,
           topRankList,
           miniArcRadius,
         }}
